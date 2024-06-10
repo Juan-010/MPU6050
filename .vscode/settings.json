@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "*.tcc": "cpp",
+        "string.h": "c",
+        "bmp280.h": "c",
+        "spi_master.h": "c"
+    }
+}
