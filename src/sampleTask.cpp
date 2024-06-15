@@ -1,5 +1,7 @@
 #include "include.h"
 #include <bmp280.h>
+#include <math.h>
+#define SEA_LEVEL_PRESSURE 1013.25
 
 static const char *TAG = "sampleTask";
 
@@ -22,11 +24,10 @@ void vSampleTask( void *pvParameters )
     bmp280.init(BMP280::Mode::DYNAMIC);
 
     ESP_LOGI(TAG, "SampleTask started.");
-
     while (1)
-    {
+    {   
         bmp280.read();
-        printf("Pressure: %.2f, Temperature: %.2f\n", bmp280.getPressF(), bmp280.getTempF());
+        printf("Pressure: %.2f hPA, Temperature: %.2f C\n", bmp280.getPressF(), bmp280.getTempF());
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }

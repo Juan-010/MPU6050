@@ -56,6 +56,7 @@ public:
      * @return 0 on success, -1 on error.
      */
     esp_err_t setMode(Mode mode);
+    
 
     /**
      * @brief Get the SPI device handle.
@@ -137,7 +138,7 @@ protected:
     uint8_t readReg(uint8_t reg);
 
     /**
-     * @brief Read data from a register of the BMP280 sensor.
+     * @brief Read data from n registers of the BMP280 sensor.
      * @param reg Register address.
      * @param buffer Buffer to store the data read.
      * @param n Number of bytes to read.
