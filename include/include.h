@@ -9,10 +9,11 @@
 #include "esp_log.h"
 
 //Pinout
-#define PIN_NUM_MISO 19
-#define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK  18
+#define PIN_NUM_MOSI 23
 #define PIN_NUM_CS   5
+#define PIN_NUM_MISO 19
+
 #define TX_PIN (UART_PIN_NO_CHANGE)
 #define RX_PIN (UART_PIN_NO_CHANGE)
 
