@@ -19,7 +19,10 @@
 #define TX_PIN (UART_PIN_NO_CHANGE)
 #define RX_PIN (UART_PIN_NO_CHANGE)
 
-
+//Task: uploadTask
+extern TaskHandle_t xUploadTaskHandle;
+void vUploadTask( void *pvParameters );
+extern QueueHandle_t xUploadQueue;
 
 //Task: sampleTask
 extern TaskHandle_t xSampleTaskHandle;
