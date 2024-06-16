@@ -21,7 +21,8 @@ void vSampleTask( void *pvParameters )
     esp_err_t ret = spi_bus_add_device(VSPI_HOST, &devcfg, bmp280.getSPIHandle());
     ESP_ERROR_CHECK(ret);
 
-    bmp280.init(BMP280::Mode::DYNAMIC);
+    ret = bmp280.init(BMP280::Mode::DYNAMIC);
+    ESP_ERROR_CHECK(ret);
 
     ESP_LOGI(TAG, "SampleTask started.");
     while (1)
