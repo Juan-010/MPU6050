@@ -168,6 +168,7 @@ private:
 
     int32_t _temp;
     uint32_t _press;
+    uint8_t __read_buffer[6];
 };
 
 #endif // BMP280_H
