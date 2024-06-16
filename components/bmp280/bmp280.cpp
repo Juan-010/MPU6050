@@ -55,14 +55,14 @@ esp_err_t BMP280::setMode(Mode mode)
 
 esp_err_t BMP280::read()
 {
-    esp_err_t ret = readReg(BMP280_REG_PRESS_MSB, __read_buffer, 6);
+    esp_err_t ret = readValues();
     if (ret != ESP_OK)
     {
         return ret;
     }
     
-    int32_t adc_P = (__read_buffer[0] << 12) | (__read_buffer[1] << 4) | (__read_buffer[2] >> 4);
-    int32_t adc_T = (__read_buffer[3] << 12) | (__read_buffer[4] << 4) | (__read_buffer[5] >> 4);
+    int32_t adc_P = (__read_buffer[1] << 12) | (__read_buffer[2] << 4) | (__read_buffer[3] >> 4);
+    int32_t adc_T = (__read_buffer[4] << 12) | (__read_buffer[5] << 4) | (__read_buffer[6] >> 4);
 
     _press = compensatePress(adc_P);
     _temp = compensateTemp(adc_T);

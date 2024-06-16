@@ -147,6 +147,12 @@ protected:
     uint8_t readReg(uint8_t reg, uint8_t *buffer, uint8_t n);
 
     /**
+     * @brief Read the pressure and temperature values from the sensor.
+     * @return 0 on success, -1 on error.
+     */
+    esp_err_t readValues();
+
+    /**
      * @brief Compensate the temperature.
      * @param uncompensatedTemp Uncompensated temperature.
      * @return Compensated temperature.
@@ -168,7 +174,7 @@ private:
 
     int32_t _temp;
     uint32_t _press;
-    uint8_t __read_buffer[6];
+    uint8_t __read_buffer[7];
 };
 
 #endif // BMP280_H

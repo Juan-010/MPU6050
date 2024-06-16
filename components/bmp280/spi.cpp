@@ -38,6 +38,18 @@ uint8_t BMP280::readReg(uint8_t reg)
     return value;
 }
 
+esp_err_t BMP280::readValues()
+{
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));
+    uint8_t reg = 0x80; // Dirección con el bit de lectura
+    t.length = 7*8;                       // n*8 bits de datos
+    t.tx_buffer = &reg;
+    t.rx_buffer = __read_buffer;
+    esp_err_t ret = spi_device_transmit(_spi, &t); // Transmitir
+    return ret;
+}
+
 uint8_t BMP280::readReg(uint8_t reg, uint8_t *buffer, uint8_t n)
 {
     spi_transaction_t t;
