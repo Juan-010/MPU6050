@@ -44,9 +44,10 @@ extern "C" void app_main(void) {
     Cmd peron = Cmd(0x01, "viva peron!", 0x00);
     uint8_t *txBuffer;
     uint16_t len;
-    peron.serialize(&txBuffer, len);
+    peron.serialize(txBuffer, len);
     uart_write_bytes(UART_NUM_0, (const void *) txBuffer, len);
     delete[] txBuffer;
+    peron.~Cmd();
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));

@@ -113,20 +113,21 @@ Cmd &Cmd::operator=(const Cmd &c) {
     return *this;
 }
 
-CmdError Cmd::serialize(uint8_t **buffer, uint16_t &len) {
+CmdError Cmd::serialize(uint8_t * &buffer, uint16_t &len) {
     len = __dlc + 5;
-    *buffer = new uint8_t[len];
-    *buffer[0] = __cmd;
-    *buffer[1] = (__dlc >> 8) & 0xFF;
-    *buffer[2] = __dlc & 0xFF;
-    memcpy(*buffer + 3, __data, __dlc);
-    *buffer[3 + __dlc] = __comp_data;
-    *buffer[3 + __dlc + 1] = genChksum();
+    buffer = new uint8_t[len];
+    buffer[0] = __cmd;
+    buffer[1] = (__dlc >> 8) & 0xFF;
+    buffer[2] = __dlc & 0xFF;
+    memcpy(buffer + 3, __data, __dlc);
+    buffer[3 + __dlc] = __comp_data;
+    buffer[3 + __dlc + 1] = genChksum();
     return CmdError::Ok;
 }
 
 uint8_t Cmd::genChksum()
 {
+    __chksum = 0x07;
     __chksum ^= __cmd;
     __chksum ^= (__dlc >> 8) & 0xFF;
     __chksum ^= __dlc & 0xFF;
