@@ -55,7 +55,7 @@ esp_err_t BMP280::setMode(Mode mode)
 
 esp_err_t BMP280::read()
 {
-    uint8_t read_buffer[6];
+    static uint8_t read_buffer[6];
     esp_err_t ret = readReg(BMP280_REG_PRESS_MSB, read_buffer, 6);
     if (ret != ESP_OK)
     {

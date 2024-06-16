@@ -44,11 +44,11 @@ uint8_t BMP280::readReg(uint8_t reg, uint8_t *buffer, uint8_t n)
     uint8_t *tmpbuffer = new uint8_t[n + 1];
     memset(&t, 0, sizeof(t));
     reg |= 0x80; // Dirección con el bit de lectura
-    t.length = 8+ n*8;                       // 8 bits de dirección y 8 bits de datos
+    t.length = 8 + n*8;                       // n*8 bits de datos
     t.tx_buffer = &reg;
     t.rx_buffer = tmpbuffer;
     esp_err_t ret = spi_device_transmit(_spi, &t); // Transmitir
-    for(int i = 0 ; i < n ; i++)
-        buffer[i] = tmpbuffer[i+1];
+    memcpy(buffer, tmpbuffer + 1, n);
+    delete [] tmpbuffer;
     return ret;
 }
