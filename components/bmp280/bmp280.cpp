@@ -50,10 +50,13 @@ esp_err_t BMP280::init(Mode mode)
 esp_err_t BMP280::setMode(Mode mode)
 {   
     _mode = mode;
-    writeReg(BMP280_REG_CTRL_MEAS, BMP280_CTRL_MEAS_DYNAMIC);  
-    writeReg(BMP280_REG_CONFIG, BMP280_REG_CONFIG_DYNAMIC);
-    return ESP_OK;
-    //return writeReg(BMP280_REG_CTRL_MEAS, bmp280_mode_values[(uint8_t) _mode], 2);
+    esp_err_t ret = writeReg(BMP280_REG_CTRL_MEAS, bmp280_mode_values[(uint8_t) mode], 1);
+    if (ret != ESP_OK)
+    {
+        return ret;
+    }
+    ret = writeReg(BMP280_REG_CONFIG, bmp280_mode_values[(uint8_t) mode] + 1, 1);
+    return ret;
 }
 
 esp_err_t BMP280::read()
