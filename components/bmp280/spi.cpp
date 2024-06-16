@@ -42,7 +42,7 @@ esp_err_t BMP280::readValues()
 {
     spi_transaction_t t;
     memset(&t, 0, sizeof(t));
-    uint8_t reg = 0x80; // Dirección con el bit de lectura
+    const uint8_t reg = BMP280_REG_PRESS_MSB | 0x80; // Dirección con el bit de lectura
     t.length = 7*8;                       // n*8 bits de datos
     t.tx_buffer = &reg;
     t.rx_buffer = __read_buffer;

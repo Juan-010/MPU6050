@@ -64,8 +64,8 @@ esp_err_t BMP280::read()
     int32_t adc_P = (__read_buffer[1] << 12) | (__read_buffer[2] << 4) | (__read_buffer[3] >> 4);
     int32_t adc_T = (__read_buffer[4] << 12) | (__read_buffer[5] << 4) | (__read_buffer[6] >> 4);
 
-    _press = compensatePress(adc_P);
     _temp = compensateTemp(adc_T);
+    _press = compensatePress(adc_P);
     
     return ESP_OK;
 }

@@ -27,8 +27,14 @@ void vSampleTask( void *pvParameters )
     while (1)
     {   
         ret = bmp280.read();
-        ESP_ERROR_CHECK(ret);
-        printf("Pressure: %.2f hPA, Temperature: %.2f C\n", bmp280.getPressF(), bmp280.getTempF());
+        if (ret != ESP_OK)
+        {
+            printf("Error leyendo el dispositivo.\n");
+        }
+        else
+        {
+            printf("Pressure: %.2f hPA, Temperature: %.2f C\n", bmp280.getPressF(), bmp280.getTempF());
+        }
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
