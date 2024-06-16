@@ -8,6 +8,8 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
+#include "cmdlib.h"
+
 //Pinout
 #define PIN_NUM_CLK  18
 #define PIN_NUM_MOSI 23

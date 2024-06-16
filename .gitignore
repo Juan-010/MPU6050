@@ -3,3 +3,11 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+include/sdkconfig.h
+sdkconfig.old
+sdkconfig.dev.old
+sdkconfig.prod.old
+sdkconfig.debug.old
+docs/html
+docs/latex
+*.img

@@ -1,5 +1,6 @@
 #include "include.h"
 
+
 extern "C" void app_main(void) {
     esp_err_t ret;
 
@@ -39,6 +40,13 @@ extern "C" void app_main(void) {
     if (result != pdPASS) {
         ESP_LOGE("app_main", "Error al crear la tarea: SampleTask");
     }
+
+    Cmd peron = Cmd(0x01, "viva peron!", 0x00);
+    uint8_t *txBuffer;
+    uint16_t len;
+    peron.serialize(&txBuffer, len);
+    uart_write_bytes(UART_NUM_0, (const void *) txBuffer, len);
+    delete[] txBuffer;
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));

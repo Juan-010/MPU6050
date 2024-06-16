@@ -22,12 +22,17 @@ public:
 
     Cmd(const uint8_t *buffer, uint16_t len); // Constructor con buffer
 
+    Cmd(uint8_t cmd, const char *str, uint8_t comp_data); // Constructor con string
+
     ~Cmd();
     
     Cmd(const Cmd &c) { *this = c; } // Constructor de copia
     Cmd &operator=(const Cmd &c);    // Operador de asignacion
 
-    uint8_t *serialize(uint16_t &len); //!< Genera el checksum
+    CmdError serialize(uint8_t **buffer, uint16_t &len);
+
+    
+    uint8_t genChksum(); //!< Genera el checksum
 
     uint8_t getCmd() { return __cmd; }                  //!< Devuelve el comando
     uint16_t getDlc() { return __dlc; }                 //!< Devuelve la longitud de los datos
@@ -43,6 +48,6 @@ private:
     uint8_t __comp_data;         //!< Byte de Informacion complementaria
     uint8_t __chksum;            //!< Checksum (CRC8)
     CmdError __error;            //!< Error
-}
+};
 
 #endif
