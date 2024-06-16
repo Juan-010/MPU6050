@@ -12,15 +12,6 @@
 
 static const char *TAG = "BMP280";
 
-uint8_t bmp280_mode_values[6][2] = {
-                                {BMP280_CTRL_MEAS_LOW_POWER, BMP280_REG_CONFIG_LOW_POWER},
-                                {BMP280_CTRL_MEAS_DYNAMIC, BMP280_REG_CONFIG_DYNAMIC}, 
-                                {BMP280_CTRL_MEAS_WEATHER, BMP280_REG_CONFIG_WEATHER},
-                                {BMP280_CTRL_MEAS_ELEVATOR, BMP280_REG_CONFIG_ELEVATOR},
-                                {BMP280_CTRL_MEAS_DROP, BMP280_REG_CONFIG_DROP},
-                                {BMP280_CTRL_MEAS_NAVIGATION, BMP280_REG_CONFIG_NAVIGATION}
-                                };
-
 esp_err_t BMP280::init(Mode mode)
 {
     _mode = mode;
@@ -45,18 +36,6 @@ esp_err_t BMP280::init(Mode mode)
     vTaskDelay(pdMS_TO_TICKS(100));
 
     return setMode(mode);
-}
-
-esp_err_t BMP280::setMode(Mode mode)
-{   
-    _mode = mode;
-    esp_err_t ret = writeReg(BMP280_REG_CTRL_MEAS, bmp280_mode_values[(uint8_t) mode], 1);
-    if (ret != ESP_OK)
-    {
-        return ret;
-    }
-    ret = writeReg(BMP280_REG_CONFIG, bmp280_mode_values[(uint8_t) mode] + 1, 1);
-    return ret;
 }
 
 esp_err_t BMP280::read()
