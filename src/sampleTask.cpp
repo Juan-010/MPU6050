@@ -66,16 +66,13 @@ void vSampleTask(void *pvParameters) {
         ret = bmp280.read();
         if (ret != ESP_OK) {
             cmd = new Cmd(0x02, 0, nullptr, 0x00);
-            // add Cmd to queue
-            xQueueSendToBack(xUploadQueue, (const void *)cmd, portMAX_DELAY);
         } else {
             doc["temp"] = bmp280.getTemp();
             doc["pres"] = bmp280.getPress();
-            n = serializeMsgPack(doc, buffer);
+            n = serializeJson(doc, buffer);
             cmd = new Cmd(0x01, n, (uint8_t *) buffer, 0x00);
-            // add Cmd to queue
-            xQueueSendToBack(xUploadQueue, (const void *)cmd, portMAX_DELAY);
         }
+        xQueueSendToBack(xUploadQueue, (const void *)cmd, portMAX_DELAY);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
