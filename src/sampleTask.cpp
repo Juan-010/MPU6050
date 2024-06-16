@@ -26,7 +26,8 @@ void vSampleTask( void *pvParameters )
     ESP_LOGI(TAG, "SampleTask started.");
     while (1)
     {   
-        bmp280.read();
+        ret = bmp280.read();
+        ESP_ERROR_CHECK(ret);
         printf("Pressure: %.2f hPA, Temperature: %.2f C\n", bmp280.getPressF(), bmp280.getTempF());
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
