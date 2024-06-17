@@ -1,5 +1,8 @@
 #include "cmdlib.h"
 #include <cstring>
+#include "esp_log.h"
+
+const char *CmdTag = "Cmd";
 
 Cmd::Cmd()
 {
@@ -111,6 +114,32 @@ Cmd &Cmd::operator=(const Cmd &c) {
     __chksum = c.__chksum;
     __error = c.__error;
     return *this;
+}
+
+
+CmdError Cmd::serializeStatic(uint8_t * buffer, uint16_t buffer_len, uint16_t &len) {
+    ESP_LOGV(CmdTag, "cmd: %d, dlc: %d, comp_data: %d", __cmd, __dlc, __comp_data);
+    ESP_LOGV(CmdTag, "buffer ptr: %p, len: %d", buffer, buffer_len);
+    if (buffer == nullptr)
+    {
+        ESP_LOGE(CmdTag, "Null buffer.");
+        return CmdError::NullBuffer;
+    }
+    len = __dlc + 5;
+    ESP_LOGV(CmdTag, "len: %d", len);
+    if (len > buffer_len)
+        {
+            ESP_LOGE(CmdTag, "Buffer too short.");
+            return CmdError::BufferTooShort;
+        }
+    memset(buffer, 0, buffer_len);
+    buffer[0] = __cmd;
+    buffer[1] = (__dlc >> 8) & 0xFF;
+    buffer[2] = __dlc & 0xFF;
+    memcpy(buffer + 3, __data, __dlc);
+    buffer[3 + __dlc] = __comp_data;
+    buffer[3 + __dlc + 1] = genChksum();
+    return CmdError::Ok;
 }
 
 CmdError Cmd::serialize(uint8_t * &buffer, uint16_t &len) {

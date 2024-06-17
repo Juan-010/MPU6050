@@ -39,20 +39,22 @@ void vUploadTask( void *pvParameters)
     {
         ESP_LOGE(TAG, "Error al crear la cola.");
     }
+    void *pxRxedMessagePtr = nullptr;
+    static Cmd *cmd;
+    static CmdError error;
+    static uint8_t txBuffer[256];
+    static uint16_t len;
 
-    void *data;
-    
-    Cmd *cmd;
-    uint8_t *txBuffer;
-    uint16_t len;
     while (1)
     {
-        if (xQueueReceive(xUploadQueue, &data, portMAX_DELAY) == pdTRUE)
+        if (xQueueReceive(xUploadQueue, &pxRxedMessagePtr, portMAX_DELAY) == pdTRUE)
         {
-            cmd = (Cmd *)data;
-            cmd->serialize(txBuffer, len);
+            cmd = (Cmd *)pxRxedMessagePtr;
+            ESP_LOGV(TAG, "got cmd: ptr: %p", cmd);
+            error = cmd->serializeStatic(txBuffer, 256, len);
+            ESP_LOGV(TAG, "serialize result: %s", error.c_str());
             uart_write_bytes(UART_NUM_0, (const void *)txBuffer, len);
-            delete[] txBuffer;
+            ESP_LOGV(TAG, "Data sent.");
             cmd->~Cmd();
         }
     }

@@ -29,6 +29,7 @@ public:
     Cmd(const Cmd &c) { *this = c; } // Constructor de copia
     Cmd &operator=(const Cmd &c);    // Operador de asignacion
 
+    CmdError serializeStatic(uint8_t * buffer, uint16_t buffer_len, uint16_t &len);
     CmdError serialize(uint8_t * &buffer, uint16_t &len);
 
     

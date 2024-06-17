@@ -55,10 +55,10 @@ void vSampleTask(void *pvParameters) {
         vTaskDelete(NULL);
     }
 
-    Cmd *cmd;
-    JsonDocument doc;
-    char buffer[256];
-    size_t n;
+    static Cmd *cmd;
+    static JsonDocument doc;
+    static char buffer[256];
+    static size_t n;
 
     ESP_LOGI(TAG, "SampleTask started.");
 
@@ -72,7 +72,8 @@ void vSampleTask(void *pvParameters) {
             n = serializeJson(doc, buffer);
             cmd = new Cmd(0x01, n, (uint8_t *) buffer, 0x00);
         }
-        xQueueSendToBack(xUploadQueue, (const void *)cmd, portMAX_DELAY);
+        ESP_LOGV(TAG, "cmd ptr: %p", cmd);
+        xQueueSendToBack(xUploadQueue, (void *)&cmd, portMAX_DELAY);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

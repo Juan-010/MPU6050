@@ -18,6 +18,7 @@ public:
     {
         Ok,
         CommandError,
+        NullBuffer,
         BufferTooShort,
         DLCError,
         DLCTooLong,
@@ -93,6 +94,8 @@ public:
             return "Ok";
         case CommandError:
             return "CommandError";
+        case NullBuffer:
+            return "NullBuffer";
         case BufferTooShort:
             return "BufferTooShort";
         case DLCError:
