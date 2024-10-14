@@ -8,13 +8,17 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
+#include "MPU6050.h"
+#include "MPU6050_6Axis_MotionApps20.h"
+#include "I2Cdev.h"
+
+
+
 #include "cmdlib.h"
 
 //Pinout
-#define PIN_NUM_CLK  18
-#define PIN_NUM_MOSI 23
-#define PIN_NUM_CS   5
-#define PIN_NUM_MISO 19
+#define PIN_I2C_SDA GPIO_NUM_32
+#define PIN_I2C_SCL GPIO_NUM_33
 
 #define TX_PIN (UART_PIN_NO_CHANGE)
 #define RX_PIN (UART_PIN_NO_CHANGE)

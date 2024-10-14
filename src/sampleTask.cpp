@@ -1,59 +1,37 @@
-#include <bmp280.h>
-#include <math.h>
 
 #include "ArduinoJson.h"
-#include "cmdlib.h"
 #include "include.h"
-#define SEA_LEVEL_PRESSURE 1013.25
+
+
+I2Cdev i2c = I2Cdev(I2C_NUM_0);
+MPU6050 mpu;
 
 static const char *TAG = "sampleTask";
 
 TaskHandle_t xSampleTaskHandle = NULL;
 
 void vSampleTask(void *pvParameters) {
-    // Setup SPI
-    spi_bus_config_t buscfg = {
-        .mosi_io_num = PIN_NUM_MOSI,
-        .miso_io_num = PIN_NUM_MISO,
-        .sclk_io_num = PIN_NUM_CLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 32,
-    };
 
-    // Setup SPI Device: BMP280
-    spi_device_interface_config_t devcfg = {
-        .mode = 0,                   // SPI mode 0
-        .clock_speed_hz = 1000000,   // Clock out a 1 MHz
-        .spics_io_num = PIN_NUM_CS,  // CS pin
-        .queue_size = 7,             // We want to be able to queue 7 transactions at a time
-    };
+    i2c.initialize(PIN_I2C_SDA, PIN_I2C_SCL, 400000);
+	mpu.initialize(&i2c, MPU6050_DEFAULT_ADDRESS);
+    
+	float ypr[3];
+	uint16_t packetSize = 42; // expected DMP packet size (default is 42 bytes)
+	uint16_t fifoCount;		  // count of all bytes currently in FIFO
+	uint8_t fifoBuffer[64];	  // FIFO storage buffer
+	uint8_t mpuIntStatus;	  // holds actual interrupt status byte from MPU
+    Quaternion quaternion; // [w, x, y, z]         quaternion container
+    VectorFloat gravity;   // [x, y, z]            gravity vector
 
-    BMP280 bmp280 = BMP280();
+	mpu.CalibrateGyro();
+	mpu.CalibrateAccel();
+	mpu.dmpInitialize();
 
-    esp_err_t ret = spi_bus_initialize(VSPI_HOST, &buscfg, 1);
-    if (ret != ESP_OK) {
-        // terminar ejecucion de esta tarea
-        ESP_LOGE(TAG, "Se aborto la ejecucion de la tarea");
-        // Terminar tarea
-        vTaskDelete(NULL);
-    }
-
-    ret = spi_bus_add_device(VSPI_HOST, &devcfg, bmp280.getSPIHandle());
-    if (ret != ESP_OK) {
-        // terminar ejecucion de esta tarea
-        ESP_LOGE(TAG, "Se aborto la ejecucion de la tarea");
-        // Terminar tarea
-        vTaskDelete(NULL);
-    }
-
-    ret = bmp280.init(BMP280::Mode::DYNAMIC);
-    if (ret != ESP_OK) {
-        // terminar ejecucion de esta tarea
-        ESP_LOGE(TAG, "Se aborto la ejecucion de la tarea");
-        // Terminar tarea
-        vTaskDelete(NULL);
-    }
+	// mpu.setXGyroOffset(CONFIG_X_GYRO_OFFSET);
+	// mpu.setYGyroOffset(CONFIG_Y_GYRO_OFFSET);
+	// mpu.setZGyroOffset(CONFIG_Z_GYRO_OFFSET);
+	// mpu.setZAccelOffset(CONFIG_Z_ACCEL_OFFSET);
+	mpu.setDMPEnabled(true);
 
     static Cmd *cmd;
     static JsonDocument doc;
@@ -63,17 +41,42 @@ void vSampleTask(void *pvParameters) {
     ESP_LOGI(TAG, "SampleTask started.");
 
     while (1) {
-        ret = bmp280.read();
-        if (ret != ESP_OK) {
-            cmd = new Cmd(0x02, 0, nullptr, 0x00);
-        } else {
-            doc["temp"] = bmp280.getTemp();
-            doc["pres"] = bmp280.getPress();
+        mpuIntStatus = mpu.getIntStatus();
+		// get current FIFO count
+		fifoCount = mpu.getFIFOCount();
+
+		if ((mpuIntStatus & 0x10) || fifoCount == 1024)
+		{
+			// reset so we can continue cleanly
+			mpu.resetFIFO();
+		}
+		else if (mpuIntStatus & 0x02)
+		{
+			// wait for correct available data length, should be a VERY short wait
+			while (fifoCount < packetSize)
+			{
+				fifoCount = mpu.getFIFOCount();
+			}
+
+			// read a packet from FIFO
+			mpu.getFIFOBytes(fifoBuffer, packetSize);
+
+			// read and calculate data
+			mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
+			mpu.dmpGetGravity(&gravity, &quaternion);
+			mpu.dmpGetYawPitchRoll(ypr, &quaternion, &gravity);
+
+            doc["y"] = ypr[0] * 180/M_PI;
+            doc["p"] = ypr[1] * 180/M_PI;
+            doc["r"] = ypr[2] * 180/M_PI;
             n = serializeJson(doc, buffer);
             cmd = new Cmd(0x01, n, (uint8_t *) buffer, 0x00);
-        }
-        ESP_LOGV(TAG, "cmd ptr: %p", cmd);
-        xQueueSendToBack(xUploadQueue, (void *)&cmd, portMAX_DELAY);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+
+			//printf("Yaw: %3.2f Pitch: %3.2f Roll: %3.2f\n", ypr[0] * 180/M_PI, ypr[1] * 180/M_PI, ypr[2] * 180/M_PI);
+            
+            ESP_LOGV(TAG, "cmd ptr: %p", cmd);
+            xQueueSendToBack(xUploadQueue, (void *)&cmd, portMAX_DELAY);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+		}
     }
 }
