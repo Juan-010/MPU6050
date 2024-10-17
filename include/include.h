@@ -4,13 +4,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
-#include "driver/spi_master.h"
+#include "driver/i2c_types.h"
+#include "driver/i2c_master.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 
 #include "MPU6050.h"
 #include "MPU6050_6Axis_MotionApps20.h"
-#include "I2Cdev.h"
 
 
 

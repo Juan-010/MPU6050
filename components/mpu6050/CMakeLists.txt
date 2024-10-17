@@ -1,7 +1,8 @@
-set(COMPONENT_SRCS "src/MPU6050.cpp")
-set(COMPONENT_ADD_INCLUDEDIRS "include")
-set(COMPONENT_REQUIRES
-    I2Cdev
+idf_component_register(
+    SRCS
+        "MPU6050.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        "driver"
 )
-
-register_component()
