@@ -385,6 +385,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# I2Cdev library
+#
+CONFIG_I2C_BUS_ACCESS_TIMEOUT=100
+CONFIG_I2C_BUS_DEFAULT_READ_TIMEOUT=1000
+# end of I2Cdev library
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEBUG=y
