@@ -1,5 +1,4 @@
 #include "include.h"
-#include "cmdlib.h"
 
 static const char *TAG = "uploadTask";
 
@@ -34,28 +33,23 @@ void vUploadTask( void *pvParameters)
     // Limpiar el buffer del UART
     uart_flush(UART_NUM_0);
 
-    xUploadQueue = xQueueCreate(16, sizeof(void *));
-    if (xUploadQueue == NULL)
-    {
-        ESP_LOGE(TAG, "Error al crear la cola.");
-    }
-    void *pxRxedMessagePtr = nullptr;
-    static Cmd *cmd;
-    static CmdError error;
-    static uint8_t txBuffer[256];
-    static uint16_t len;
+    static Trama_t data;
+
 
     while (1)
     {
-        if (xQueueReceive(xUploadQueue, &pxRxedMessagePtr, portMAX_DELAY) == pdTRUE)
+        if (xQueueReceive(xUploadQueue, (void *) &data, portMAX_DELAY) == pdTRUE)
         {
-            cmd = (Cmd *)pxRxedMessagePtr;
-            ESP_LOGV(TAG, "got cmd: ptr: %p", cmd);
-            error = cmd->serializeStatic(txBuffer, 256, len);
-            ESP_LOGV(TAG, "serialize result: %s", error.c_str());
-            uart_write_bytes(UART_NUM_0, (const void *)txBuffer, len);
-            ESP_LOGV(TAG, "Data sent.");
-            cmd->~Cmd();
+            #ifdef PRETTYPRINT
+            printf("0x1b,ctr=%u,ax=%.2f,ay=%.2f,az=%.2f,gx=%.2f,gy=%.2f,gz=%.2f,t=%.2f\n", 
+                    data.ctr, 
+                    data.acce.acce_x, data.acce.acce_y, data.acce.acce_z, 
+                    data.gyro.gyro_x, data.gyro.gyro_y, data.gyro.gyro_z, 
+                    data.temp.temp);
+            #else
+            //resto 4 bytes para sacar el dato de temperatura.
+            uart_write_bytes(UART_NUM_0, (const void *)&data, sizeof(Trama_t) - sizeof(float));
+            #endif
         }
     }
 }

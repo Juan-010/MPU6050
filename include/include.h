@@ -7,16 +7,14 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#include "I2Cdev.h"
-#include "MPU6050.h"
 
+#include "trama.h"
 
-
-#include "cmdlib.h"
+//#define PRETTYPRINT
 
 //Pinout
-#define PIN_I2C_SDA GPIO_NUM_32
-#define PIN_I2C_SCL GPIO_NUM_33
+#define PIN_I2C_SDA GPIO_NUM_21
+#define PIN_I2C_SCL GPIO_NUM_22
 
 #define TX_PIN (UART_PIN_NO_CHANGE)
 #define RX_PIN (UART_PIN_NO_CHANGE)
