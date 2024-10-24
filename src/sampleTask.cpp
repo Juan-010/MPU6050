@@ -19,6 +19,47 @@ static mpu6050_handle_t mpu6050 = NULL;
 
 TaskHandle_t xSampleTaskHandle = NULL;
 
+mpu6050_acce_value_t cal_acce;
+mpu6050_gyro_value_t cal_gyro;
+
+void compensate (mpu6050_acce_value_t *acce, mpu6050_gyro_value_t *gyro){
+    acce->acce_x -= cal_acce.acce_x;
+    acce->acce_y -= cal_acce.acce_y;
+    acce->acce_z -= cal_acce.acce_z;
+    gyro->gyro_x -= cal_gyro.gyro_x;
+    gyro->gyro_y -= cal_gyro.gyro_y;
+    gyro->gyro_z -= cal_gyro.gyro_z;
+}
+
+void calibrate (int count){
+    mpu6050_acce_value_t sum_acce;
+    mpu6050_gyro_value_t sum_gyro;
+    memset(&sum_acce, 0, sizeof(mpu6050_acce_value_t));
+    memset(&sum_gyro, 0, sizeof(mpu6050_gyro_value_t));
+    mpu6050_wake_up(mpu6050);
+    for (size_t i = 0; i < count; i++)
+    {
+        mpu6050_get_acce(mpu6050, &cal_acce);
+        mpu6050_get_gyro(mpu6050, &cal_gyro);
+        sum_acce.acce_x += cal_acce.acce_x;
+        sum_acce.acce_y += cal_acce.acce_y;
+        sum_acce.acce_z += cal_acce.acce_z;
+        sum_gyro.gyro_x += cal_gyro.gyro_x;
+        sum_gyro.gyro_y += cal_gyro.gyro_y;
+        sum_gyro.gyro_z += cal_gyro.gyro_z;
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+    cal_acce.acce_x = sum_acce.acce_x / count;
+    cal_acce.acce_y = sum_acce.acce_y / count;
+    cal_acce.acce_z = sum_acce.acce_z / count;
+    cal_gyro.gyro_x = sum_gyro.gyro_x / count;
+    cal_gyro.gyro_y = sum_gyro.gyro_y / count;
+    cal_gyro.gyro_z = sum_gyro.gyro_z / count;
+    mpu6050_sleep(mpu6050);
+    ESP_LOGI(TAG, "Calibration values: acce_x=%.2f, acce_y=%.2f, acce_z=%.2f, gyro_x=%.2f, gyro_y=%.2f, gyro_z=%.2f", 
+            cal_acce.acce_x, cal_acce.acce_y, cal_acce.acce_z, cal_gyro.gyro_x, cal_gyro.gyro_y, cal_gyro.gyro_z);
+}
+
 void vSampleTask(void *pvParameters) {
 
     uint8_t mpu6050_deviceid;
@@ -105,6 +146,10 @@ void vSampleTask(void *pvParameters) {
     
     ESP_LOGI(TAG, "MPU self-test end.");
 
+    ESP_LOGI(TAG, "Calibrating MPU6050...");
+    calibrate(50);
+    ESP_LOGI(TAG, "Calibration done.");
+
     ESP_LOGI(TAG, "SampleTask started.");
 
     while (1) {
@@ -114,6 +159,7 @@ void vSampleTask(void *pvParameters) {
         mpu6050_get_temp(mpu6050, &data.temp);
         mpu6050_sleep(mpu6050);
         data.ctr++;
+        compensate(&data.acce, &data.gyro);
 
         xQueueSendToBack(xUploadQueue, (void *)&data, portMAX_DELAY);
         vTaskDelay(pdMS_TO_TICKS(100));

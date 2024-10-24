@@ -48,7 +48,10 @@ void vUploadTask( void *pvParameters)
                     data.temp.temp);
             #else
             //resto 4 bytes para sacar el dato de temperatura.
-            uart_write_bytes(UART_NUM_0, (const void *)&data, sizeof(Trama_t) - sizeof(float));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.id, sizeof(uint8_t));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.ctr, sizeof(uint8_t));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.acce, 3*sizeof(float));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.gyro, 3*sizeof(float));
             #endif
         }
     }
