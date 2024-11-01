@@ -83,14 +83,14 @@ esp_err_t mpu6050_get_gyro_fs(gyro_config_t *fs){
     uint8_t data;
     esp_err_t ret = mpu6050_read_bytes(MPU6050_GYRO_CONFIG, &data, sizeof(data));
     if (ret != ESP_OK) return ret;
-    *fs = (data >> 3) & 3;
+    *fs = (gyro_config_t) ((data >> 3) & 0x3);
     return ret;
 }
 esp_err_t mpu6050_get_accel_fs(accel_config_t *fs){
     uint8_t data;
     esp_err_t ret = mpu6050_read_bytes(MPU6050_ACCEL_CONFIG, &data, sizeof(data));
     if (ret != ESP_OK) return ret;
-    *fs = (data >> 3) & 3;
+    *fs = (accel_config_t) ((data >> 3) & 0x3);
     return ret;
     
 }
