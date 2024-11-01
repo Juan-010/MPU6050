@@ -1,0 +1,131 @@
+close all;
+clear;
+clc;
+data = readtable('data2.csv');
+
+%%
+counter = data.Counter;
+% Conversión para X
+X_accel = convert_data(data.XAccel);
+Y_accel = convert_data(data.YAccel);
+Z_accel = convert_data(data.ZAccel);
+
+X_gyro = convert_data(data.XGyro);
+Y_gyro = convert_data(data.YGyro);
+Z_gyro = convert_data(data.ZGyro);
+
+
+
+ACCEL_SCALE = 16384.0/9.8;
+GYRO_SCALE = 131;
+fs = 10;
+
+X_accel = X_accel ./ ACCEL_SCALE;
+Y_accel = Y_accel ./ ACCEL_SCALE;
+Z_accel = Z_accel ./ ACCEL_SCALE;
+X_gyro = X_gyro ./ GYRO_SCALE;
+Y_gyro = Y_gyro ./ GYRO_SCALE;
+Z_gyro = Z_gyro ./ GYRO_SCALE;
+t = (0:1/fs:(length(X_accel)-1)/fs);
+
+X_accel = compensate(X_accel, 10);
+Y_accel = compensate(Y_accel, 10);
+Z_accel = compensate(Z_accel, 10);
+
+X_gyro = compensate(X_gyro, 10);
+Y_gyro = compensate(Y_gyro, 10);
+Z_gyro = compensate(Z_gyro, 10);
+%%
+% Crear la figura
+figure;
+hold on;  % Permitir que varias curvas se dibujen en el mismo gráfico
+plot(t, X_accel, 'r');  % Gráfico en rojo para X
+plot(t, Y_accel, 'g');  % Gráfico en verde para Y
+plot(t, Z_accel, 'b');  % Gráfico en azul para Z
+hold off;  % Terminar de añadir gráficos
+
+% Agregar etiquetas a los ejes
+xlabel('Tiempo (s)');
+ylabel('Aceleración (m/s^2)');
+
+% Agregar título
+title('Aceleración en los ejes X, Y y Z');
+
+% Agregar leyenda para identificar las curvas
+legend('Aceleración en X', 'Aceleración en Y', 'Aceleración en Z');
+
+% Opcional: agregar rejilla para mejorar la lectura
+grid on;
+xlim([t(1); t(end)]);
+minn = min([min(X_accel), min(Y_accel), min(Z_accel)]);
+maxx = max([max(X_accel), max(Y_accel), max(Z_accel)]);
+ylim([minn-1 ; maxx+0])
+%%
+figure;
+hold on;  % Permitir que varias curvas se dibujen en el mismo gráfico
+plot(t, X_gyro, 'r');  % Gráfico en rojo para X
+plot(t, Y_gyro, 'g');  % Gráfico en verde para Y
+plot(t, Z_gyro, 'b');  % Gráfico en azul para Z
+hold off;  % Terminar de añadir gráficos
+
+% Agregar etiquetas a los ejes
+xlabel('Tiempo (s)');
+ylabel('Velocidad angular (deg/s)');
+
+% Agregar título
+title('Velocidad angular en los ejes X, Y y Z');
+
+% Agregar leyenda para identificar las curvas
+legend('\omega en X', '\omega en Y', '\omega en Z');
+
+% Opcional: agregar rejilla para mejorar la lectura
+grid on;
+xlim([t(1); t(end)]);
+%%
+figure;
+hold on;  % Permitir que varias curvas se dibujen en el mismo gráfico
+plot(t, counter, 'r');
+hold off;  % Terminar de añadir gráficos
+
+% Agregar etiquetas a los ejes
+xlabel('Tiempo');
+ylabel('Contador');
+
+% Agregar título
+title('Contador');
+
+% Opcional: agregar rejilla para mejorar la lectura
+grid on;
+xlim([t(1); t(end)]);
+
+%%
+%Obtencion de rotaciones
+Xg_int = cumsum(X_gyro* 1/fs); 
+Yg_int = cumsum(Y_gyro* 1/fs);
+Zg_int = cumsum(Z_gyro* 1/fs);
+
+
+figure;
+hold on;  % Permitir que varias curvas se dibujen en el mismo gráfico
+plot(t, Xg_int, 'r');  % Gráfico en rojo para X
+plot(t, Yg_int, 'g');  % Gráfico en verde para Y
+plot(t, Zg_int, 'b');  % Gráfico en azul para Z
+hold off;  % Terminar de añadir gráficos
+
+% Agregar etiquetas a los ejes
+xlabel('Tiempo');
+ylabel('Rotacion');
+
+% Agregar título
+title('Rotacion en los ejes X, Y y Z');
+
+% Agregar leyenda para identificar las curvas
+legend('Rotacion en X', 'Rotacion en Y', 'Rotacion en Z');
+
+% Opcional: agregar rejilla para mejorar la lectura
+grid on;
+
+
+
+
+
