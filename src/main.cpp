@@ -20,7 +20,7 @@ extern "C" void app_main(void) {
     ESP_LOGI(TAG, "Tarea creada: UploadTask");
 
     // Crear tarea
-    result = xTaskCreate(vSampleTask, "SampleTask", 4096, NULL, tskIDLE_PRIORITY, &xSampleTaskHandle);
+    result = xTaskCreate(vSampleTask, "SampleTask", 4096, NULL, 1, &xSampleTaskHandle);
     if (result != pdPASS) {
         ESP_LOGE(TAG, "Error al crear la tarea: SampleTask");
     }

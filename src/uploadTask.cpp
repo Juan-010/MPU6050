@@ -41,17 +41,16 @@ void vUploadTask( void *pvParameters)
         if (xQueueReceive(xUploadQueue, (void *) &data, portMAX_DELAY) == pdTRUE)
         {
             #ifdef PRETTYPRINT
-            printf("0x1b,ctr=%u,ax=%.2f,ay=%.2f,az=%.2f,gx=%.2f,gy=%.2f,gz=%.2f,t=%.2f\n", 
+            printf("0x1b,ctr=%u,ax=%i,ay=%i,az=%i,gx=%i,gy=%i,gz=%i\n", 
                     data.ctr, 
-                    data.acce.acce_x, data.acce.acce_y, data.acce.acce_z, 
-                    data.gyro.gyro_x, data.gyro.gyro_y, data.gyro.gyro_z, 
-                    data.temp.temp);
+                    data.acce[0], data.acce[1], data.acce[2], 
+                    data.gyro[0], data.gyro[1], data.gyro[2]);
             #else
             //resto 4 bytes para sacar el dato de temperatura.
             uart_write_bytes(UART_NUM_0, (const void *)&data.id, sizeof(uint8_t));
             uart_write_bytes(UART_NUM_0, (const void *)&data.ctr, sizeof(uint8_t));
-            uart_write_bytes(UART_NUM_0, (const void *)&data.acce, 3*sizeof(float));
-            uart_write_bytes(UART_NUM_0, (const void *)&data.gyro, 3*sizeof(float));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.acce, 3*sizeof(int16_t));
+            uart_write_bytes(UART_NUM_0, (const void *)&data.gyro, 3*sizeof(int16_t));
             #endif
         }
     }

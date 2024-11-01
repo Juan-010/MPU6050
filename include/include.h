@@ -10,7 +10,7 @@
 
 #include "trama.h"
 
-//#define PRETTYPRINT
+#define PRETTYPRINT
 
 //Pinout
 #define PIN_I2C_SDA GPIO_NUM_21
