@@ -1,66 +1,146 @@
 #ifndef MPU6050_H
 #define MPU6050_H
+
 #include "i2c_config.h"
 
-// MPU6050 sensor configuration
-#define MPU6050_SENSOR_ADDR 0x68   // Slave address of the MPU6050 sensor
+/** @file mpu6050.h
+ *  @brief MPU6050 sensor driver for ESP32 using I2C.
+ *
+ *  This file contains function declarations and macros to interface with the MPU6050 sensor, 
+ *  enabling accelerometer and gyroscope data collection, as well as sensor configuration.
+ */
 
-#define MPU6050_WHO_AM_I_REG 0x75  // Register for Who Am I
-#define MPU6050_WHO_AM_I 0x68      // Value for Who Am I
+/** MPU6050 sensor I2C address */
+#define MPU6050_SENSOR_ADDR 0x68
 
-#define MPU6050_PWR_MGMT_1_REG 0x6B // Register for Power Management
-#define MPU6050_SLEEP_BIT 0x40      // Bit for sleep mode
+/** MPU6050 Who Am I register address */
+#define MPU6050_WHO_AM_I_REG 0x75
+/** MPU6050 Who Am I expected value */
+#define MPU6050_WHO_AM_I 0x68
 
-#define MPU6050_ACCEL_XOUT_H 0x3B  // Accelerometer X-axis high byte
-#define MPU6050_ACCEL_CONFIG 0x1C  // Accelerometer configuration register
+/** MPU6050 Power Management register address */
+#define MPU6050_PWR_MGMT_1_REG 0x6B
+/** MPU6050 Sleep mode bit */
+#define MPU6050_SLEEP_BIT 0x40
 
-#define MPU6050_GYRO_XOUT_H 0x43   // Gyroscope X-axis high byte
-#define MPU6050_GYRO_CONFIG 0x1B   // Gyroscope configuration register
+/** Accelerometer X-axis high byte register */
+#define MPU6050_ACCEL_XOUT_H 0x3B
+/** Accelerometer configuration register address */
+#define MPU6050_ACCEL_CONFIG 0x1C
 
+/** Gyroscope X-axis high byte register */
+#define MPU6050_GYRO_XOUT_H 0x43
+/** Gyroscope configuration register address */
+#define MPU6050_GYRO_CONFIG 0x1B
 
-// MPU6050 data structure
+/** @brief MPU6050 sensor data structure
+ *
+ *  This structure holds raw data values from the accelerometer and gyroscope.
+ */
 #pragma pack(push, 1)
 typedef struct {
-    uint8_t start_byte;
-    uint8_t counter;
-    int16_t accel_x;
-    int16_t accel_y;
-    int16_t accel_z;
-    int16_t gyro_x;
-    int16_t gyro_y;
-    int16_t gyro_z;
+    uint8_t start_byte; /**< Start byte for data packet */
+    uint8_t counter;    /**< Counter byte */
+    int16_t accel_x;    /**< Accelerometer X-axis data */
+    int16_t accel_y;    /**< Accelerometer Y-axis data */
+    int16_t accel_z;    /**< Accelerometer Z-axis data */
+    int16_t gyro_x;     /**< Gyroscope X-axis data */
+    int16_t gyro_y;     /**< Gyroscope Y-axis data */
+    int16_t gyro_z;     /**< Gyroscope Z-axis data */
 } mpu6050_data_t;
 #pragma pack(pop)
 
+/** @brief Gyroscope configuration options */
 typedef enum {
-    GYRO_FS_SEL_250 = 0,
-    GYRO_FS_SEL_500 = 1,
-    GYRO_FS_SEL_1000 = 2,
-    GYRO_FS_SEL_2000 = 3
+    GYRO_FS_SEL_250 = 0,   /**< Gyroscope full scale ±250°/s */
+    GYRO_FS_SEL_500 = 1,   /**< Gyroscope full scale ±500°/s */
+    GYRO_FS_SEL_1000 = 2,  /**< Gyroscope full scale ±1000°/s */
+    GYRO_FS_SEL_2000 = 3   /**< Gyroscope full scale ±2000°/s */
 } gyro_config_t;
 
+/** @brief Accelerometer configuration options */
 typedef enum {
-    ACCEL_FS_SEL_2G = 0,
-    ACCEL_FS_SEL_4G = 1,
-    ACCEL_FS_SEL_8G = 2,
-    ACCEL_FS_SEL_16G = 3
+    ACCEL_FS_SEL_2G = 0,   /**< Accelerometer full scale ±2g */
+    ACCEL_FS_SEL_4G = 1,   /**< Accelerometer full scale ±4g */
+    ACCEL_FS_SEL_8G = 2,   /**< Accelerometer full scale ±8g */
+    ACCEL_FS_SEL_16G = 3   /**< Accelerometer full scale ±16g */
 } accel_config_t;
 
+/** @brief Write a byte to a MPU6050 register
+ *
+ *  @param reg_addr Register address to write to
+ *  @param data Byte data to write
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_write_byte(uint8_t reg_addr, uint8_t data);
+
+/** @brief Read multiple bytes from MPU6050
+ *
+ *  @param reg_addr Register address to start reading from
+ *  @param data Pointer to buffer where data will be stored
+ *  @param len Number of bytes to read
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_read_bytes(uint8_t reg_addr, uint8_t *data, size_t len);
 
+/** @brief Check MPU6050 identity
+ *
+ *  @return ESP_OK if device ID matches, error code otherwise
+ */
 esp_err_t mpu6050_whoami(void);
 
+/** @brief Wake up MPU6050 from sleep mode
+ *
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_wake(void);
+
+/** @brief Put MPU6050 into sleep mode
+ *
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_sleep(void);
 
+/** @brief Set gyroscope full-scale range
+ *
+ *  @param fs Gyroscope full scale setting
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_set_gyro_fs(gyro_config_t fs);
+
+/** @brief Set accelerometer full-scale range
+ *
+ *  @param fs Accelerometer full scale setting
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_set_accel_fs(accel_config_t fs);
 
+/** @brief Get current gyroscope full-scale range
+ *
+ *  @param fs Pointer to store current gyroscope full scale setting
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_get_gyro_fs(gyro_config_t *fs);
+
+/** @brief Get current accelerometer full-scale range
+ *
+ *  @param fs Pointer to store current accelerometer full scale setting
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t mpu6050_get_accel_fs(accel_config_t *fs);
 
+/** @brief Read accelerometer data
+ *
+ *  @param accel Pointer to store accelerometer data (X, Y, Z axes)
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t read_mpu6050_accel(int16_t *accel);
+
+/** @brief Read gyroscope data
+ *
+ *  @param gyro Pointer to store gyroscope data (X, Y, Z axes)
+ *  @return ESP_OK on success, error code otherwise
+ */
 esp_err_t read_mpu6050_gyro(int16_t *gyro);
 
 #endif
