@@ -5,7 +5,6 @@
 % Description 	: Gyroscope data used to visualize rotation in 3D space
 
 close all;
-clear;
 clc;
 
 % Parameters
