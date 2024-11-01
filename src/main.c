@@ -6,6 +6,7 @@
 #include "sdkconfig.h"
 
 void app_main(void) {
+    // Checks for fatal errors
     ESP_ERROR_CHECK(i2c_master_init());
     ESP_ERROR_CHECK(uart_init());
     ESP_ERROR_CHECK(mpu6050_whoami());
